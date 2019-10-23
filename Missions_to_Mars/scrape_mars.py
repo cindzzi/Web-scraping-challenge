@@ -12,7 +12,7 @@ def init_browser():
 def scrape():
 # URL of page to be scraped
     browser = init_browser()
-    mars_dict = ()
+    mars_dict = {}
     url = 'https://mars.nasa.gov/news/'
     browser.visit(url)
 
@@ -20,49 +20,54 @@ def scrape():
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
 
-    # mars["news_title"] = soup.find('div', class_ ='content_title').get_text()
-    p_news = soup.find('div', class_= 'article_teaser_body')
-    p_news = p_news.text.strip()
+    news_title = soup.find('div', class_ ='content_title').text
+    p_news = soup.find('div', class_= 'article_teaser_body').text
+    #p_news = p_news.text.strip()
+    mars_dict["news_title"] = news_title
     mars_dict["p_news"] = p_news
 
     # return mars
 
 
 #     browser = Browser('chrome', headless = False)
-    url1 = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
-    browser.visit(url1)
+    url_Fig = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
+    browser.visit(urlFig)
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
 
     
     featured_image = soup.find(class_="thumb")
     featured_image_url='https://www.jpl.nasa.gov/spaceimages/images/largesize/PIA23503_hires.jpg'
-
+    mars_dict["featured_image_url"] = 'https://www.jpl.nasa.gov/spaceimages/images/largesize/PIA23503_hires.jpg'
     
 
 #     browser = Browser('chrome', headless = False)
-    url3 = 'https://twitter.com/marswxreport?lang=en'
-    browser.visit(url3)
+    url_twitter = 'https://twitter.com/marswxreport?lang=en'
+    browser.visit(url_twitter)
 
-#     html = browser.html
-#     soup = BeautifulSoup(html, 'html.parser')
+    html = browser.html
+    soup = BeautifulSoup(html, 'html.parser')
     mars_weather = soup.find_all(class_ ='TweetTextSize TweetTextSize--normal js-tweet-text tweet-text')
     mars_weather.text.strip()
+    mars_dict["mars_weather"] = mars_weather
 #     return mars_weather
 
 #     browser = Browser('chrome', headless = False)
-#     url = 'https://space-facts.com/mars/'
-#     browser.visit(url)
-#     html = browser.html
-#     soup = BeautifulSoup(html, 'html.parser')
+    url = 'https://space-facts.com/mars/'
+    browser.visit(url)
+    html = browser.html
+    soup = BeautifulSoup(html, 'html.parser')
 
 #     
     mars_facts = pd.read_html("https://space-facts.com/mars/")
-    mars_facts_df=mars_facts[0]
-    mars_dict["mars_fact"] = mars_fact
+    # table_url = "https://space-facts.com/mars/"
+    # mars_facts = pd.read_html(table_url)
+    mars_facts_df=mars_facts[1]
     mars_facts_df.columns=['MARS PLANET PROFILE', 'Description']
     mars_facts_df.set_index('MARS PLANET PROFILE', inplace=True)
-    mars_facts_df
+    mars_facts_df1 = mars_facts_df.reset_index().to_html(index = False)
+    mars_dict["mars_fact_df1"] = mars_fact_df1
+
 
 # #Mars Hemispheres
 #     browser = Browser('chrome', headless = False)
@@ -78,7 +83,7 @@ def scrape():
     hemisphere_image_urls_dict = []
 
     
-for hemisphere in hemisphere_info:
+    for hemisphere in hemisphere_info:
         title = hemisphere.find('h3').text
         titles.append(title)
         hemis_url =hemisphere.find('a')['href']
@@ -91,12 +96,6 @@ for hemisphere in hemisphere_info:
         find_image = soup.find('div', class_ = 'downloads')
         same_hemisphere_url = find_image.find('a')['href']
         hemisphere_image_urls_dict.append({"Title": title, "img_url":same_hemisphere_url })
-    
-    mars_Data["hemisphere_image_urls_dict"] = hemisphere_image_urls_dict
-# Close the browser after scraping
 
-mars_dict = {
-    "News_Paragraphs": p_news,
-    "Mars_weathers": mars_weather,
-    "Mars_fact": mars_fact
-}
+    mars_dict["hemisphere_image_urls_dict"] = hemisphere_image_urls_dict
+    return mars_dict 
